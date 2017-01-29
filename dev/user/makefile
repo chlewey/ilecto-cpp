@@ -1,16 +1,15 @@
 
 CC=g++
 AR=ar
-DEPS=user.h interlecto.h interlecto.a
-OBJS=ilecto_html.o ilecto_main.o utils.o
+DEPS=user.h ../main/interlecto.h ../main/interlecto.a
 CFLAGS=-std=gnu++11 -fPIC -shared
 OFLAGS=-std=gnu++11 -c
 AFLAGS=rvs
 
 all: user.so
 
-%.so: %.cc $(DEPS)
-	$(CC) -o $@ $< interlecto.a $(CFLAGS)
+user.so: user.cc $(DEPS)
+	$(CC) -o $@ $< ../main/interlecto.a $(CFLAGS)
 
 %.o: %.cc $(DEPS)
 	$(CC) -o $@ $< $(OFLAGS)
