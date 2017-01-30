@@ -1,0 +1,11 @@
+
+Options -MultiViews +SymLinksIfOwnerMatch
+Require all granted
+
+RewriteEngine	On
+RewriteRule	^/?(extensions|data|config)\b	/status/403	[PT,QSA]
+
+RewriteCond	%{REQUEST_FILENAME}	-f
+RewriteRule	.?	-	[L]
+RewriteRule	^api/(.+)$	bin/api.cgi?%1	[PT,QSA]
+RewriteRule	^(.+)$	bin/index.cgi	[PT,QSA]
