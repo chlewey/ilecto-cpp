@@ -3,13 +3,16 @@
 
 using namespace web;
 
-int web::main(enviro&Enviro, format&Page, content&Content) {
+int web::main(enviro&Enviro) {
+	Enviro.header("Content-type", "text/xml");
+	content Content(Enviro);
+	format Page(Enviro);
+
 	Page.set_title("Hello, World!");
 	Page.load(Content);
 
 	cout << Enviro.headers();
-	//cout << "So far so good\n";
-	cout << Page.html();
+	cout << Page.xhtml();
 
 	return Enviro.status();
 }

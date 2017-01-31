@@ -31,16 +31,39 @@ string_pair strrbreak(const std::string &s, char delim, size_t pos) {
 	return string_pair( s.substr(0,n), s.substr(n+1) );
 }
 
-void unencode(const char *src, const char *last, char *dest) {
-	for(; src != last; src++, dest++)
-		if(*src == '+')
-			*dest = ' ';
-		else if(*src == '%') {
+void unencode(char *dest,const char *src,size_t n) {
+	size_t i=0,j=0;
+	for(; i<n && j<n && *(src+i); i++, j++)
+		if(*(src+i) == '+')
+			*(dest+j) = ' ';
+		else if(*(src+i) == '%') {
 			int code;
-			if(sscanf(src+1, "%2x", &code) != 1) code = '?';
-			*dest = code;
-			src +=2;
+			if(sscanf(src+i+1, "%2x", &code) != 1) code = '?';
+			*(dest+j) = code;
+			i+=2;
 		} else
-			*dest = *src;
-	*dest = '\0';
+			*(dest+j) = *(src+i);
+	*(dest+j) = '\0';
 }
+
+const std::string str_spaces(" \t\f\v\r\n");
+
+std::string& rtrim(std::string&src,const std::string&chars) {
+	size_t pos = src.find_last_not_of(chars);
+	if(pos!=NPOS)
+		src.erase(pos+1);
+	else
+		src.clear();
+	return src;
+}
+
+std::string& ltrim(std::string&src,const std::string&chars) {
+	size_t pos = src.find_first_not_of(chars);
+	if(pos!=NPOS)
+		src.erase(0,pos);
+	else
+		src.clear();
+	return src;
+}
+
+

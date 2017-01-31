@@ -1,8 +1,8 @@
 
 CC=g++
 AR=ar
-DEPS=interlecto.h ilecto_web.h ilecto_html.h utils.h
-OBJS=ilecto_html.o ilecto_main.o utils.o
+DEPS=interlecto.h ilecto_web.h ilecto_html.h ilecto_xml.h ilecto_json.h ilecto_str.h config.h
+OBJS=ilecto_web.o ilecto_html.o ilecto_xml.o ilecto_json.o ilecto_str.o config.o
 CFLAGS=-std=gnu++11
 OFLAGS=-std=gnu++11 -c
 AFLAGS=rvs

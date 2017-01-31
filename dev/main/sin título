@@ -1,0 +1,6 @@
+#ifndef __ILECTO_XML_H__
+#define __ILECTO_XML_H__
+namespace xml {
+
+}
+#endif

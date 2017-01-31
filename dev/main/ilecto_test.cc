@@ -3,12 +3,14 @@
 
 using namespace web;
 
-int web::main(enviro&Enviro, format&Page, content&Content) {
+int web::main(enviro&Enviro) {
+	content Content(Enviro);
+	format Page(Enviro);
+
 	Page.set_title("Hello, World!");
 	Page.load(Content);
 
 	cout << Enviro.headers();
-	//cout << "So far so good\n";
 	cout << Page.html();
 
 	return Enviro.status();
@@ -38,16 +40,16 @@ htmlcode* web::make_content(content&Content) {
 	cp->append(f1);
 	
 	cp->append("POST Form", "h2");
-	html::form*f2 = new html::form("post");
-	html::par*p2_1 = new html::par("div");
+	NEWPTR(html::form,f2)("post");
+	NEWPTR(html::par,p2_1)("div");
 	p2_1->append( new html::label("f2_fname","First Name") );
 	p2_1->append( new html::input("f2_fname","first_name",Env->value("post:first_name")) );
 	f2->append(p2_1);
-	html::par*p2_2 = new html::par("div");
+	NEWPTR(html::par,p2_2)("div");
 	p2_2->append( new html::label("f2_lname","Last Name") );
 	p2_2->append( new html::input("f2_lname","last_name",Env->value("post:last_name")) );
 	f2->append(p2_2);
-	html::par*p2_3 = new html::par("div");
+	NEWPTR(html::par,p2_3)("div");
 	p2_3->append( new html::submit("Send POST") );
 	f2->append(p2_3);
 	cp->append(f2);
@@ -56,12 +58,12 @@ htmlcode* web::make_content(content&Content) {
 	cp->append("GET variables", "h3");
 	if(Env->key_exists("get")) {
 		info*Get = Env->at("get");
-		html::block*tab2 = new html::block("table");
+		NEWPTR(html::table,tab2);
 		for(auto x: *Get) {
-			html::block*tr = new html::par("tr");
-			tr->append(new html::span("td",x.first));
-			tr->append(new html::span("td",x.second->value() ));
-			tab2->append(tr);
+			NEWPTR(html::tr_comp,tr2);
+			tr2->append(new html::td_comp(x.first));
+			tr2->append(new html::td_comp(x.second->value() ));
+			tab2->append(tr2);
 		}
 		cp->append(tab2);
 	}
@@ -72,12 +74,12 @@ htmlcode* web::make_content(content&Content) {
 	cp->append("POST variables", "h3");
 	if(Env->key_exists("post")) {
 		info*Post = Env->at("post");
-		html::block*tab3 = new html::block("table");
+		NEWPTR(html::table,tab3);
 		for(auto x: *Post) {
-			html::block*tr = new html::par("tr");
-			tr->append(new html::span("td",x.first));
-			tr->append(new html::span("td",x.second->value() ));
-			tab3->append(tr);
+			NEWPTR(html::tr_comp,tr3);
+			tr3->append(new html::td_comp(x.first));
+			tr3->append(new html::td_comp(x.second->value() ));
+			tab3->append(tr3);
 		}
 		cp->append(tab3);
 	}
@@ -89,12 +91,12 @@ htmlcode* web::make_content(content&Content) {
 	}
 	
 	cp->append("Environmental vars", "h2");
-	html::block*tab = new html::block("table");
+	NEWPTR(html::table,tab);
 	for(auto x: *Serv) {
-		html::block*tr = new html::par("tr");
-		tr->append(new html::span("td",x.first));
-		tr->append(new html::span("td",x.second->value() ));
-		tab->append(tr);
+		NEWPTR(html::tr_comp,tr1);
+		tr1->append(new html::td_comp(x.first));
+		tr1->append(new html::td_comp(x.second->value() ));
+		tab->append(tr1);
 	}
 	cp->append(tab);
 

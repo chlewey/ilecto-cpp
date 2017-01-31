@@ -1,25 +1,20 @@
 #ifndef __ILECTO_HTML_H__
 #define __ILECTO_HTML_H__
 
+#include "ilecto_str.h"
 #include <iostream>
-#include <vector>
-#include <string>
 #include <map>
-//#include <stdio.h>
-//#include <stdlib.h>
-
-//#include <cgicc/CgiDefs.h>
-//#include <cgicc/Cgicc.h>
-//#include <cgicc/HTTPHTMLHeader.h>
-//#include <cgicc/HTMLClasses.h>
 
 namespace html {
+using namespace il;
 
-typedef std::string string;
 typedef std::map<string,string> attrib_map;
 typedef std::map<string,string>::iterator attrib_iterator;
 typedef std::pair<string,string> attrib_pair;
-extern const string nullstr, opini, clini, nmend, sgend;
+extern const string opini, clini, nmend, sgend;
+
+string&r_entities(string&src);
+inline string&entities(const string&src) { string*sp=new string(src); return r_entities(*sp); }
 
 class tag {
 	string tagname;
@@ -28,6 +23,7 @@ class tag {
 	tag(const string&name=nullstr,const string&id=nullstr): tagname(name) {
 		if(id!=nullstr) attribs["id"] = id;
 	}
+	tag(const tag&T): tagname(T.tagname), attribs(T.attribs) {}
 	virtual ~tag() {}
 	string& operator[](const string&key) { return attribs[key]; }
 	const string&  name() const { return tagname; }
@@ -38,11 +34,11 @@ class tag {
 	virtual tag& append(tag*Tp) { return *this; }
 	
 	operator string&() { return this->toString(); }
-	virtual string& toString(int level=0) { return *new string; }
+	virtual string& toString(int level=0,bool xml=false) { return *new string; }
 	string& attrib_str();
 	string& open_tag(bool nl=false,int level=0);// { return opini + tagname + attrib_str() + nmend; }
 	string& close_tag(bool nl=false,int level=0);// { return clini + tagname + nmend; }
-	string& single_tag(bool nl=false,int level=0);// { return opini + tagname + attrib_str() + sgend; }
+	string& single_tag(bool nl=false,int level=0,bool xml=false);// { return opini + tagname + attrib_str() + sgend; }
 };
 
 extern tag empty_tag;
@@ -55,7 +51,7 @@ class text: public tag {
 	bool empty() { return _text.size()==0; }
 
 	text& operator=(const string&src) { _text = src; }
-	string& toString(int level=0) { string*sp=new string(level,'\t'); *sp += _text; return *sp; }
+	string& toString(int level=0,bool xml=false) { string*sp=&entities(_text); sp->replace(0,0,level,'\t'); return *sp; }
 };
 
 class simple: public tag {
@@ -63,7 +59,7 @@ class simple: public tag {
 	simple(const string&name,const string&id=nullstr): tag(name,id) {}
 	~simple() {}
 	bool empty() const { return true; }
-	string& toString(int level=0) { return single_tag(false,level); }
+	string& toString(int level=0,bool xml=false) { return single_tag(false,level,xml); }
 };
 
 class sblock: public simple {
@@ -71,7 +67,7 @@ class sblock: public simple {
 	sblock(const string&name,const string&id=nullstr): simple(name,id) {}
 	~sblock() {}
 	bool empty() const { return true; }
-	string& toString(int level=0) { return single_tag(true,level); }
+	string& toString(int level=0,bool xml=false) { return single_tag(true,level,xml); }
 };
 
 typedef std::vector<tag*> tag_list;
@@ -107,22 +103,22 @@ class block: public tag {
 	      tag* back()       { return tags.back(); }
 	const tag* back() const { return tags.back(); }
 
-	virtual string& toString(int level=0);
-	string& inner_tags(int level=0);
+	virtual string& toString(int level=0,bool xml=false);
+	string& inner_tags(int level=0,bool xml=false);
 };
 
 class par: public block {
 	public:
 	par(const string&name,const string&value=nullstr,const string&id=nullstr): block(name,id) { if(value!=nullstr) append(new text(value)); }
 	~par() {}
-	string& toString(int level=0);
+	string& toString(int level=0,bool xml=false);
 };
 
 class span: public par {
 	public:
 	span(const string&name,const string&value=nullstr,const string&id=nullstr): par(name,value,id) {}
 	~span() {}
-	string& toString(int level=0);
+	string& toString(int level=0,bool xml=false);
 };
 
 class html: public block {
@@ -137,7 +133,7 @@ class html: public block {
 	const tag* head() const { return this->at(0); }
 	      tag* body()       { return this->at(1); }
 	const tag* body() const { return this->at(1); }
-	string& toString(int level=0);
+	string& toString(int level=-1,bool xml=false);
 
 	html& set_title(string& tit) {
 		_title = tit;
@@ -197,6 +193,46 @@ class input: public simple {
 class submit: public simple {
 	public:
 	submit(const string&value=nullstr,const string&id=nullstr): simple("input",id) { set_at("type","submit"); if(value!=nullstr) set_at("value",value); }
+};
+
+class caption: public par {
+	public:
+	caption(const string&Caption=nullstr,const string&id=nullstr): par("caption",Caption,id) {}
+};
+
+class table: public block {
+	public:
+	table(const string&id=nullstr,const string&Caption=nullstr): block("table",id) { if(Caption!=nullstr) append(new caption(Caption)); }
+};
+
+class tr_comp: public par {
+	public:
+	tr_comp(const string&id=nullstr): par("tr",nullstr,id) {}
+};
+
+class td_comp: public span {
+	public:
+	td_comp(const string&Text=nullstr,const string&id=nullstr): span("td",Text,id) {}
+};
+
+class th_comp: public span {
+	public:
+	th_comp(const string&Text=nullstr,const string&id=nullstr): span("th",Text,id) {}
+};
+
+class tr: public block {
+	public:
+	tr(const string&id=nullstr): block("tr",id) {}
+};
+
+class td: public par {
+	public:
+	td(const string&Text=nullstr,const string&id=nullstr): par("td",Text,id) {}
+};
+
+class th: public par {
+	public:
+	th(const string&Text=nullstr,const string&id=nullstr): par("th",Text,id) {}
 };
 
 }

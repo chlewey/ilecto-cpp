@@ -1,16 +1,16 @@
 
 #include "interlecto.h"
-//#include <string.h>
 
 int main(int argc, char **argv, char**envp) {
 	web::enviro Enviro(argc, argv, envp);
 	web::content Content(Enviro);
 	web::format Page(Enviro);
 
-	return web::main(Enviro, Page, Content);
+	return web::main(Enviro);
 }
 
 namespace web {
+	//using namespace il;
 	std::ostream&cout(std::cout);
 	std::ostream&cerr(std::cerr);
 	std::istream&cin(std::cin);
@@ -24,7 +24,7 @@ namespace web {
 	
 	string& info::value(const string&keys) {
 		if(keys=="") return _value;
-		string_pair kp = strbreak(keys, ':');
+		auto kp = keys.split_first(':');
 		info_iterator it=_data->find(kp.first);
 		if(it==_data->end()) return emptystr;
 		return it->second->value(kp.second);
@@ -36,11 +36,7 @@ namespace web {
 		size_t postN=0;
 		for(size_t i=0; *(envp+i); ++i) {
 			string s(*(envp+i));
-		//	size_t n = s.find('=');
-		//	if(n!=string::npos)
-		//	key = s.substr(0,n);
-		//	val = s.substr(n+1);
-			string_pair sp = strbreak(s, '=');
+			auto sp = s.split_first('=');
 			key = sp.first;
 			val = sp.second;
 			serverp->set(key, val);
@@ -48,12 +44,11 @@ namespace web {
 			if(key=="CONTENT_LENGTH") postN=atol(val.c_str());
 		}
 		set("get_query", query);
-		string_vector qv = split(query, '&');
+		auto qv = query.split('&');
 		info*getp = new info;
 		for(string&q: qv) {
-			string_vector ql = split(q, '=');
-			if(ql.size()<2) continue;
-			getp->set(ql[0],url_decode(ql[1]));
+			auto ql = q.split_first('=');
+			getp->set(ql.first,ql.second.url_decode());
 		}
 		set("get", getp);
 		set("post_len", std::to_string(postN));
@@ -63,15 +58,19 @@ namespace web {
 			cin.read(data,postN);
 			data[postN] = '\0';
 			set("post_query", data);
-			string_vector pv = split(data, '&');
+			auto pv = split(data,'&');
 			info*postp = new info;
 			for(string&p: pv) {
-				string_vector pl = split(p, '=');
-				if(pl.size()<2) continue;
-				postp->set(pl[0],url_decode(pl[1]));
+				auto pl = p.split_first('=');
+				postp->set(pl.first,pl.second.url_decode());
 			}
 			set("post", postp);
 		}
+		
+		string req = value("server:REQUEST_URI");
+		if(req==nullstr) req = value("server:REDIRECT_URL");
+		req.url_decode();
+		set("request",req);
 	}
 
 	enviro::~enviro() {
@@ -119,8 +118,20 @@ namespace web {
 		return emptystr;
 	}
 
+	string& enviro::header(const string&key,const string&val) {
+		if(!key_exists("headers"))
+			set("headers",new info);
+		at("headers")->set(key,val);
+	}
+
 	string& enviro::headers() const {
-		string*sp = new string("Content-type: text/html;charset=utf-8\r\n\r\n");
+		NEWPTR(string,sp);
+		if(key_exists("headers"))
+			for(auto x: *at("headers"))
+				*sp += x.first + ": " + x.second->value() + "\r\n";
+		else
+			*sp += "Content-type: text/html;charset=utf-8\r\n";
+		*sp += "\r\n";
 		return *sp;
 	}
 
@@ -140,16 +151,37 @@ namespace web {
 	
 	format& format::load(content& C) {
 		set("content", C);
+		C.set("page", this);
 		return *this;
 	}
 
 	string& format::html() {
-		html::html Html;
+		NEWPTR(html::html,Hp);
 		if(key_exists("title"))
-			Html.set_title((*this)["title"]->value());
+			Hp->set_title((*this)["title"]->value());
 		if(key_exists("content"))
-			Html.body()->append( at("content")->html_struct() );
-		return Html.toString();
+			Hp->body()->append( at("content")->html_struct() );
+		return Hp->toString();
+	}
+
+	string& format::xhtml() {
+		NEWPTR(html::html,Hp);
+		if(key_exists("title"))
+			Hp->set_title((*this)["title"]->value());
+		if(key_exists("content"))
+			Hp->body()->append( at("content")->html_struct() );
+		Hp->set_at("xmlns", "http://www.w3.org/1999/xhtml");
+		return Hp->toString(0,true);
+	}
+
+	string& format::xml() {
+		NEWPTR(xml::xml,Xp);
+		return Xp->toString();
+	}
+
+	string& format::json() {
+		NEWPTR(json::json,Jp);
+		return Jp->toString();
 	}
 
 	content::content(enviro&E): info("enviro",E) {
@@ -158,14 +190,26 @@ namespace web {
 	content::~content() {
 	}
 	
+	/*
+	string& url_decode(string*Sp) {
+		size_t n = Sp->size();
+		const char*orig = Sp->c_str();
+		char*dest = new char[n+2];
+		unencode(dest,orig,n+1);
+		Sp->replace(Sp->begin(),Sp->end(),dest);
+		delete dest;
+		return *Sp;
+	}
 	string& url_decode(const string&S,size_t l) {
 		size_t n = S.size();
 		const char*orig = S.c_str();
 		const char*last = l!=string::npos? orig+l: orig+n;
 		char*dest = new char[n+2];
-		unencode(orig,last,dest);
-		return *new string(dest);
+		unencode(dest,orig,l==NPOS?n:l);
+		string*ans = new string(dest);
+		delete dest;
+		return *ans;
 	}
 	string& url_encode(const string&S) { return *new string(S); }
-
+	/**/
 }

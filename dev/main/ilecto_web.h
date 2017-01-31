@@ -1,24 +1,14 @@
 #ifndef __ILECTO_WEB_H__
 #define __ILECTO_WEB_H__
 
-#include <iostream>
-#include <vector>
-#include <string>
-#include <map>
-//#include <stdio.h>
-//#include <stdlib.h>
-
-//#include <cgicc/CgiDefs.h>
-//#include <cgicc/Cgicc.h>
-//#include <cgicc/HTTPHTMLHeader.h>
-//#include <cgicc/HTMLClasses.h>
+#include "ilecto_str.h"
 #include "ilecto_html.h"
+#include <iostream>
+#include <map>
 
 namespace web {
+using namespace il;
 
-typedef std::string string;
-extern const string nullstr;
-extern string emptystr;
 extern std::ostream&cout;
 extern std::ostream&cerr;
 extern std::istream&cin;
@@ -80,9 +70,10 @@ class info {
 	size_t max_size() const { return _data->max_size(); }
 	info*operator[](const string&key) { return (*_data)[key]; }
 	info*at(const string&key) { return _data->at(key); }
+	const info*at(const string&key) const { return _data->at(key); }
 	info_iterator find(const string&key) { return _data->find(key); }
 	size_t count(const string&key) { return _data->count(key); }
-	bool key_exists(const string&key) { return _data->count(key); }
+	bool key_exists(const string&key) const { return _data->count(key); }
 
 	info* set(const string&key,info& I) { if(_data==NULL) _data = new info_map; return (*_data)[key] = &I; }
 	info* set(const string&key,info*Ip) { if(_data==NULL) _data = new info_map; return (*_data)[key] = Ip; }
@@ -114,6 +105,7 @@ class enviro: public info {
 	string& request(const string&);
 	string& session(const string&);
 
+	string& header(const string&key,const string&val);
 	string& headers() const;
 	int status() const;
 };
@@ -140,13 +132,19 @@ class format: public info {
 
 	format& set_title(const string&tit) { set("title", tit); }
 	format& load(content&);
+
+	string& xhtml();
 	string& html();
+	string& json();
+	string& xml();
 };
 
-int main(enviro&, format&, content&);
+int main(enviro&);
 
+/*
 string& url_decode(const string&,size_t l=string::npos);
+string& url_decode(string*);
 string& url_encode(const string&);
-
+/**/
 }
 #endif
