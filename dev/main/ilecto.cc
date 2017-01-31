@@ -8,6 +8,8 @@ int web::main(enviro&Enviro) {
 	format Page(Enviro);
 
 	string request(Enviro.value("request"));
+	size_t n = request.find('?');
+	if(npos!=n) request = request.substr(0,n);
 	request.trim("\\/");
 	Page.set_title(request);
 	Page.load(Content);
