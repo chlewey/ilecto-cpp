@@ -8,7 +8,7 @@ int web::main(enviro&Enviro) {
 	format Page(Enviro);
 
 	string request(Enviro.value("request"));
-	trim(request,"\\/");
+	request.trim("\\/");
 	Page.set_title(request);
 	Page.load(Content);
 
