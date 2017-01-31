@@ -34,11 +34,11 @@ class tag {
 	virtual tag& append(tag*Tp) { return *this; }
 	
 	operator string&() { return this->toString(); }
-	virtual string& toString(int level=0,bool xml=false) { return *new string; }
-	string& attrib_str();
-	string& open_tag(bool nl=false,int level=0);// { return opini + tagname + attrib_str() + nmend; }
+	virtual string& toString(int level=0,bool as_xml=false) { return *new string; }
+	string& attrib_str(bool as_xml=false);
+	string& open_tag(bool nl=false,int level=0,bool as_xml=false);// { return opini + tagname + attrib_str() + nmend; }
 	string& close_tag(bool nl=false,int level=0);// { return clini + tagname + nmend; }
-	string& single_tag(bool nl=false,int level=0,bool xml=false);// { return opini + tagname + attrib_str() + sgend; }
+	string& single_tag(bool nl=false,int level=0,bool as_xml=false);// { return opini + tagname + attrib_str() + sgend; }
 };
 
 extern tag empty_tag;
@@ -51,7 +51,7 @@ class text: public tag {
 	bool empty() { return _text.size()==0; }
 
 	text& operator=(const string&src) { _text = src; }
-	string& toString(int level=0,bool xml=false) { string*sp=&entities(_text); sp->replace(0,0,level,'\t'); return *sp; }
+	string& toString(int level=0,bool as_xml=false);
 };
 
 class simple: public tag {
@@ -59,7 +59,7 @@ class simple: public tag {
 	simple(const string&name,const string&id=nullstr): tag(name,id) {}
 	~simple() {}
 	bool empty() const { return true; }
-	string& toString(int level=0,bool xml=false) { return single_tag(false,level,xml); }
+	string& toString(int level=0,bool as_xml=false) { return single_tag(false,level,as_xml); }
 };
 
 class sblock: public simple {
@@ -67,7 +67,7 @@ class sblock: public simple {
 	sblock(const string&name,const string&id=nullstr): simple(name,id) {}
 	~sblock() {}
 	bool empty() const { return true; }
-	string& toString(int level=0,bool xml=false) { return single_tag(true,level,xml); }
+	string& toString(int level=0,bool as_xml=false) { return single_tag(true,level,as_xml); }
 };
 
 typedef std::vector<tag*> tag_list;
@@ -103,22 +103,22 @@ class block: public tag {
 	      tag* back()       { return tags.back(); }
 	const tag* back() const { return tags.back(); }
 
-	virtual string& toString(int level=0,bool xml=false);
-	string& inner_tags(int level=0,bool xml=false);
+	virtual string& toString(int level=0,bool as_xml=false);
+	string& inner_tags(int level=0,bool as_xml=false);
 };
 
 class par: public block {
 	public:
 	par(const string&name,const string&value=nullstr,const string&id=nullstr): block(name,id) { if(value!=nullstr) append(new text(value)); }
 	~par() {}
-	string& toString(int level=0,bool xml=false);
+	string& toString(int level=0,bool as_xml=false);
 };
 
 class span: public par {
 	public:
 	span(const string&name,const string&value=nullstr,const string&id=nullstr): par(name,value,id) {}
 	~span() {}
-	string& toString(int level=0,bool xml=false);
+	string& toString(int level=0,bool as_xml=false);
 };
 
 class html: public block {
@@ -133,7 +133,7 @@ class html: public block {
 	const tag* head() const { return this->at(0); }
 	      tag* body()       { return this->at(1); }
 	const tag* body() const { return this->at(1); }
-	string& toString(int level=-1,bool xml=false);
+	string& toString(int level=-1,bool as_xml=false);
 
 	html& set_title(string& tit) {
 		_title = tit;

@@ -25,8 +25,10 @@ enum entities {
 class string;
 typedef std::vector<string> string_vector;
 typedef std::pair<string,string> string_pair;
+typedef std::vector<string_pair> string_pair_vector;
 extern const string nullstr;
 extern string emptystr;
+extern const string_pair_vector html_substs;
 
 class string: public std::string {
 	public:
@@ -46,11 +48,11 @@ class string: public std::string {
 	string (char c): std::string(1,c) {}
 	~string() {}
 	
-	string& operator= (const string&) {}
-
 	string& substitute(const string& what, const string& with=nullstr);
 	string& substitute(const string_vector& what, const string& with=nullstr);
 	string& substitute(const string_vector& what, const string_vector& with);
+	string& substitute(const string_pair& subst) { return substitute(subst.first, subst.second); }
+	string& substitute(const string_pair_vector& substs);
 
 	string& ltrim(const char*s=spaces);
 	string& ltrim(const char*s, size_t n);
@@ -94,6 +96,23 @@ inline string&  trim(const string&str, char c) { return (*new string(str)). trim
 
 inline string_vector split(const string& str, char c='\n') { return str.split(c); }
 inline string_vector split(const char* s, char c='\n') { return string(s).split(c); }
+
+inline string& html_escape(const string& str) { return (*new string(str)).html_escape(); }
+inline string& html_unescape(const string& str) { return (*new string(str)).html_unescape(); }
+string& xml_escape(const string& str);
+inline string& xml_unescape(const string& str) { return (*new string(str)).xml_unescape(); }
+
+inline string& itohex(long int n, char fill='0', size_t len=0) {
+	std::stringstream ss;
+	ss << std::hex << n;
+	NEWPTR(string,sp)(ss.str());
+	if(len) {
+		size_t l = sp->size();
+		if(l<len)
+			sp->replace(0,0,len-l,fill);
+	}
+	return *sp;
+}
 
 }
 #endif

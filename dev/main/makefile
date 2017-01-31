@@ -23,3 +23,6 @@ interlecto.a: $(OBJS)
 
 %.o: %.cc $(DEPS)
 	$(CC) -o $@ $< $(OFLAGS)
+
+clean:
+	rm *.o *.a *.cgi
