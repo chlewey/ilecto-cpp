@@ -1,8 +1,9 @@
 
 CC=g++
 AR=ar
-DEPS=interlecto.h ilecto_web.h ilecto_html.h ilecto_xml.h ilecto_json.h ilecto_str.h config.h
-OBJS=ilecto_web.o ilecto_html.o ilecto_xml.o ilecto_json.o ilecto_str.o config.o
+MODS=ilecto_web ilecto_html ilecto_xml ilecto_json ilecto_str ilecto_db config
+DEPS=interlecto.h $(MODS:=.h)
+OBJS=$(MODS:=.o)
 CFLAGS=-std=gnu++11
 OFLAGS=-std=gnu++11 -c
 AFLAGS=rvs
@@ -21,11 +22,11 @@ test.cgi: ilecto_test.cc $(DEPS) interlecto.a
 install.cgi: ilecto_inst.cc $(DEPS) interlecto.a
 	$(CC) -o $@ $< interlecto.a $(CFLAGS)
 
-ilecto_app.a: interlecto.a
-	ln -sf $< $@
+#ilecto_app.a: interlecto.a
+#	ln -sf $< $@
 
-ilecto_ext.a: interlecto.a
-	ln -sf $< $@
+#ilecto_ext.a: interlecto.a
+#	ln -sf $< $@
 
 interlecto.a: $(OBJS)
 	$(AR) $(AFLAGS) $@ $(OBJS)
