@@ -1,3 +1,12 @@
+/*@ interlecto.h
+ * 
+ * This header extends std::string class as il::string with some
+ * common utilities
+ * 
+ *@ author:  Carlos E. Thompson P.
+ *@ licence: copyleft, 2017
+ * 
+ */
 #ifndef __ILECTO_STR_H__
 #define __ILECTO_STR_H__
 
@@ -47,7 +56,7 @@ class string: public std::string {
 	//string (std::string&& str) noexcept: std::string(str) {}
 	string (char c): std::string(1,c) {}
 	~string() {}
-	
+
 	string& substitute(const string& what, const string& with=nullstr);
 	string& substitute(const string_vector& what, const string& with=nullstr);
 	string& substitute(const string_vector& what, const string_vector& with);

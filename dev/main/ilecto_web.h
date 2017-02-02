@@ -1,3 +1,12 @@
+/*@ interlecto.h
+ * 
+ * This header create classes that serve the web server environment
+ * and a framework for sending content.
+ * 
+ *@ author:  Carlos E. Thompson P.
+ *@ licence: copyleft, 2017
+ * 
+ */
 #ifndef __ILECTO_WEB_H__
 #define __ILECTO_WEB_H__
 
@@ -46,14 +55,14 @@ class info {
 	info(const string&key,info*Ip): _data(new info_map), _value(nullstr) { _data->emplace(key,Ip); }
 	info(const string&key,info&I ): _data(new info_map), _value(nullstr) { _data->emplace(key,&I); }
 	~info();
-	
+
 	info& operator=(const info&I) { if(_data!=NULL) delete _data; _data=I._data; _value=I._value; }
 	info& operator=(const string&S) { if(_data!=NULL) delete _data; _value=S; }
 	bool operator==(const info&) const;
-	
+
 	string& value() { return _value; }
 	string& value(const string&keys);
-	
+
 	bool is_map() { return _data!=NULL; }
 	bool is_string() { return !is_map(); }
 	// map !!! NOTE: these functions will fail if NULL (i.e. string info)
@@ -82,7 +91,7 @@ class info {
 		info*x = new info(value);
 		return (*_data)[key] = x;
 	}
-	
+
 	virtual html::tag* html_struct() { return &html::empty_tag; }
 };
 

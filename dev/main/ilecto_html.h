@@ -1,3 +1,12 @@
+/*@ interlecto.h
+ * 
+ * This header creates an html::html class and different html::tag
+ * classes
+ * 
+ *@ author:  Carlos E. Thompson P.
+ *@ licence: copyleft, 2017
+ * 
+ */
 #ifndef __ILECTO_HTML_H__
 #define __ILECTO_HTML_H__
 
@@ -29,10 +38,10 @@ class tag {
 	const string&  name() const { return tagname; }
 	string& set_at(const string&key,const string&value) { return attribs[key]=value; }
 	string& get_at(const string&key) { return attribs[key]; }
-	
+
 	virtual bool empty() const { return true; }
 	virtual tag& append(tag*Tp) { return *this; }
-	
+
 	operator string&() { return this->toString(); }
 	virtual string& toString(int level=0,bool as_xml=false) { return *new string; }
 	string& attrib_str(bool as_xml=false);
@@ -79,11 +88,11 @@ class block: public tag {
 	public:
 	block(const string&name,const string&id=nullstr): tag(name,id) {}
 	~block() { tags.clear(); }
-	
+
 	block& append(tag&T)  { tags.push_back(&T); return *this; }
 	block& append(tag*Tp) { tags.push_back(Tp); return *this; }
 	block& append(const string&Text,const string&TN="p",const string&id=nullstr);
-	
+
 	tag_iterator begin() { return tags.begin(); };
 	tag_iterator end() { return tags.end(); };
 	tag_reverse rbegin() { return tags.rbegin(); };

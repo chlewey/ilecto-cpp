@@ -1,3 +1,12 @@
+/*@ interlecto.h
+ * 
+ * This header creates a json::json class for importing and exporting
+ * data between modules and through the API
+ * 
+ *@ author:  Carlos E. Thompson P.
+ *@ licence: copyleft, 2017
+ * 
+ */
 #ifndef __ILECTO_JSON_H__
 #define __ILECTO_JSON_H__
 

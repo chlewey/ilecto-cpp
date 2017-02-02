@@ -1,3 +1,11 @@
+/*@ interlecto.h
+ * 
+ * This header defines the xml::xml class
+ * 
+ *@ author:  Carlos E. Thompson P.
+ *@ licence: copyleft, 2017
+ * 
+ */
 #ifndef __ILECTO_XML_H__
 #define __ILECTO_XML_H__
 
