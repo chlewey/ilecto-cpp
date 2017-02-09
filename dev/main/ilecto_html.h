@@ -1,4 +1,4 @@
-/*@ interlecto.h
+/*@ ilecto_html.h
  * 
  * This header creates an html::html class and different html::tag
  * classes

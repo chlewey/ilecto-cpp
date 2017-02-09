@@ -1,4 +1,4 @@
-/*@ interlecto.h
+/*@ ilecto_str.h
  * 
  * This header extends std::string class as il::string with some
  * common utilities

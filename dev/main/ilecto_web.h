@@ -1,4 +1,4 @@
-/*@ interlecto.h
+/*@ ilecto_web.h
  * 
  * This header create classes that serve the web server environment
  * and a framework for sending content.

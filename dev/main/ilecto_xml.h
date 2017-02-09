@@ -1,4 +1,4 @@
-/*@ interlecto.h
+/*@ ilecto_xml.h
  * 
  * This header defines the xml::xml class
  * 

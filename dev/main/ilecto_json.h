@@ -1,4 +1,4 @@
-/*@ interlecto.h
+/*@ ilecto_json.h
  * 
  * This header creates a json::json class for importing and exporting
  * data between modules and through the API

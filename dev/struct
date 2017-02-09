@@ -1,0 +1,104 @@
+Load configuration:
+	find binary configuration.
+	found?
+		load configuration
+	else
+		find configuration file
+		found?
+			load configuration
+		else
+			load defaults
+		end
+	end
+	
+	set to no DB mode?
+		--
+	else
+		open DB
+		fail
+
+----
+Load configuration:
+	find binary configuration.
+	found?
+		load configuration
+	else
+		set check config file as true
+	end
+	check config file?
+		find configuration file.
+		found?
+			load configuration
+		end
+	end
+	
+	is DB set?
+		open DB
+		fail?
+		
+		end
+
+----
+
+
+int main(int argc,char*argv[],char**env) {
+	str_vector args(argc,argv);
+	server Server(env);
+
+	site Site(Server, args);
+	page Page(Server.request(), Site);
+	Page.build();
+	cout << page.headers();
+	cout << page.contents();
+	return 0;
+}
+
+str_vector::str_vector(int argc,const char*argv[]) {
+	// create a string vector of size argc, from c_string vector in argv;
+}
+
+server::server(const char**env) {
+	// load server and request environmental variables, translate them and build a data structure
+}
+
+site::site(server&serv,const str_vector&args) {
+	// load server configuration from binary config file, text config file, and database (if applies).
+}
+
+request_t& server::request() {
+	// return the request part of the environment
+}
+
+page::page(request_t&request, site&Site) {
+	// 
+}
+
+
+100
+ 66.7
+ 50
+ 40
+ 33.3
+ 28.6
+ 25
+ 22.2
+ 20
+ 18.2
+ 16.7
+ 15.4
+ 14.3
+ 13.3
+ 12.5
+ 11.6
+ 11.1
+ 10.5
+ 10
+ 
+ ----
+ 
+ Estructura SITE
+ contiene la configuración básica de la aplicación incluyendo:
+  1. datos básicos de la aplicación (nombre del sitio/aplicación, plantillas e idiomas por defecto, etc.)
+  2. tipo, localización y credenciales de la base de datos a utilizar.
+  
+	
